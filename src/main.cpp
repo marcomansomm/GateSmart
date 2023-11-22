@@ -23,7 +23,7 @@
 #include <addons/RTDBHelper.h>
 
 /* 1. Define the WiFi credentials */
-#define WIFI_SSID "marcoantonio"
+#define WIFI_SSID "Marcoantonio"
 #define WIFI_PASSWORD "12345678"
 
 /* 2. If work with RTDB, define the RTDB URL and database secret */
@@ -47,8 +47,10 @@ float distanceCm;
 float distanceInch;
 long timezone = -3;
 byte daysavetime = 1;
-#define VIN 5 // V power voltage
-#define R 10000 //ohm resistance value
+String gateState;
+FirebaseData firebaseData;
+#define VIN 5   // V power voltage
+#define R 10000 // ohm resistance value
 
 const int trigPin = 19;
 const int echoPin = 18;
@@ -138,22 +140,22 @@ void loop()
     // Calculate the distance
     distanceCm = duration * SOUND_SPEED / 2;
 
-    if (distanceCm < 5.00 && distanceCm != 0)
+    if ((distanceCm < 5.00 && distanceCm != 0) || (Firebase.get(firebaseData, "/Gate/gateState/") && firebaseData.stringData() == "opening"))
     {
-        Serial.printf("Set opening... %s\n", Firebase.setBool(fbdo, "/Gate/opening/", true) ? "ok" : fbdo.errorReason().c_str());
-        Serial.printf("Set lastTimeOpened... %s\n", Firebase.setString(fbdo, "/Gate/lastTimeOpened/", horatioAtual()) ? "ok" : fbdo.errorReason().c_str());
-
-        
+        Firebase.setString(fbdo, "/Gate/lastTimeOpened/", horatioAtual());
         piscarLed(RED_LED, 0);
         Serial.println("Abrindo o portão");
+        Firebase.setString(fbdo, "/Gate/gateState/", "opening");
         piscarLed(YELLOW_LED, 2500);
         Serial.println("Portão Aberto");
+        Firebase.setString(fbdo, "/Gate/gateState/", "opened");
         piscarLed(GREEN_LED, 5000);
         Serial.println("Fechando o portão");
+        Firebase.setString(fbdo, "/Gate/gateState/", "closing");
         piscarLed(YELLOW_LED, 2500);
+        Firebase.setString(fbdo, "/Gate/gateState/", "closed");
+        
     }
-    Serial.printf("Set opening... %s\n", Firebase.setBool(fbdo, "/Gate/opening/", false) ? "ok" : fbdo.errorReason().c_str());
-
     // Prints the distance in the Serial Monitor
     Serial.print("Distance (cm): ");
     Serial.println(distanceCm);
@@ -163,19 +165,21 @@ void loop()
 
 void piscarLed(int led, int tempoDelay)
 {
-    float luminosidadeLED = map(analogRead(POT_PIN), 0, 1023, 0, 255); //EXECUTA A FUNÇÃO "map" DE ACORDO COM OS PARÂMETROS PASSADOS
+    float luminosidadeLED = map(analogRead(POT_PIN), 0, 1023, 0, 255); // EXECUTA A FUNÇÃO "map" DE ACORDO COM OS PARÂMETROS PASSADOS
     bool estado = false;
 
-    if(tempoDelay==2500){
+    if (tempoDelay == 2500)
+    {
         analogWrite(led, luminosidadeLED);
         delay(tempoDelay);
         analogWrite(led, 0);
-    }else {
+    }
+    else
+    {
         digitalWrite(led, !estado);
         delay(tempoDelay);
         digitalWrite(led, estado);
     }
-    
 }
 
 void inicioPortao()
