@@ -23,8 +23,8 @@
 #include <addons/RTDBHelper.h>
 
 /* 1. Define the WiFi credentials */
-#define WIFI_SSID "uaifai-apolo"
-#define WIFI_PASSWORD "bemvindoaocesar"
+#define WIFI_SSID "marcoantonio"
+#define WIFI_PASSWORD "12345678"
 
 /* 2. If work with RTDB, define the RTDB URL and database secret */
 #define DATABASE_URL "https://se-cesar-a3244-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
@@ -47,6 +47,8 @@ float distanceCm;
 float distanceInch;
 long timezone = -3;
 byte daysavetime = 1;
+#define VIN 5 // V power voltage
+#define R 10000 //ohm resistance value
 
 const int trigPin = 19;
 const int echoPin = 18;
@@ -55,6 +57,7 @@ const int echoPin = 18;
 #define YELLOW_LED 4
 #define GREEN_LED 5
 #define BIP_PIN 14
+#define POT_PIN 34
 
 #define SOUND_SPEED 0.034
 #define CM_TO_INCH 0.393701
@@ -64,8 +67,11 @@ void inicioPortao();
 String horatioAtual();
 void bip();
 
+float sensorRawToPhys(int raw);
+
 void setup()
 {
+    pinMode(POT_PIN, INPUT);
     pinMode(RED_LED, OUTPUT);
     pinMode(YELLOW_LED, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
@@ -137,7 +143,7 @@ void loop()
         Serial.printf("Set opening... %s\n", Firebase.setBool(fbdo, "/Gate/opening/", true) ? "ok" : fbdo.errorReason().c_str());
         Serial.printf("Set lastTimeOpened... %s\n", Firebase.setString(fbdo, "/Gate/lastTimeOpened/", horatioAtual()) ? "ok" : fbdo.errorReason().c_str());
 
-        bip();
+        
         piscarLed(RED_LED, 0);
         Serial.println("Abrindo o portão");
         piscarLed(YELLOW_LED, 2500);
@@ -157,11 +163,19 @@ void loop()
 
 void piscarLed(int led, int tempoDelay)
 {
+    float luminosidadeLED = map(analogRead(POT_PIN), 0, 1023, 0, 255); //EXECUTA A FUNÇÃO "map" DE ACORDO COM OS PARÂMETROS PASSADOS
     bool estado = false;
 
-    digitalWrite(led, !estado);
-    delay(tempoDelay);
-    digitalWrite(led, estado);
+    if(tempoDelay==2500){
+        analogWrite(led, luminosidadeLED);
+        delay(tempoDelay);
+        analogWrite(led, 0);
+    }else {
+        digitalWrite(led, !estado);
+        delay(tempoDelay);
+        digitalWrite(led, estado);
+    }
+    
 }
 
 void inicioPortao()
