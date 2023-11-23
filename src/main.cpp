@@ -23,7 +23,7 @@
 #include <addons/RTDBHelper.h>
 
 /* 1. Define the WiFi credentials */
-#define WIFI_SSID "Marcoantonio"
+#define WIFI_SSID "marcoantonio"
 #define WIFI_PASSWORD "12345678"
 
 /* 2. If work with RTDB, define the RTDB URL and database secret */
@@ -58,7 +58,6 @@ const int echoPin = 18;
 #define RED_LED 2
 #define YELLOW_LED 4
 #define GREEN_LED 5
-#define BIP_PIN 14
 #define POT_PIN 34
 
 #define SOUND_SPEED 0.034
@@ -77,7 +76,6 @@ void setup()
     pinMode(RED_LED, OUTPUT);
     pinMode(YELLOW_LED, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
-    pinMode(BIP_PIN, OUTPUT);
 
     pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
     pinMode(echoPin, INPUT);
@@ -187,7 +185,6 @@ void inicioPortao()
     digitalWrite(RED_LED, HIGH);
     digitalWrite(YELLOW_LED, LOW);
     digitalWrite(GREEN_LED, LOW);
-    Serial.println("Portão Fechado");
 }
 
 String horatioAtual()
@@ -203,7 +200,7 @@ String horatioAtual()
     return time;
 }
 
-void bip()
+/*void bip()
 {
 
     digitalWrite(BIP_PIN, HIGH);
@@ -214,4 +211,4 @@ void bip()
     delay(500);
     digitalWrite(BIP_PIN, LOW);
     delay(500);
-}
+}*/
